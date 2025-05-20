@@ -46,9 +46,34 @@ export const getAllUrl = async (
 export const getUrl = async (
     req: express.Request,
     res: express.Response,
-) => {};
+) => {
+    try {
+        const shortUrl = await UrlModel.findOne({shortUrl: req.params.id});
+        if(!shortUrl) {
+            res.status(404).send({message: "Short Url not found"});
+        } else {
+            shortUrl.clicks++;
+            shortUrl.save();
+            res.redirect(`${shortUrl.fullUrl}`); 
+            res.status(200).send(shortUrl);
+        }
+    } catch (error) {
+        res.status(500).send({message: "Something went wrong"});
+    }
+};
+
+
 
 export const deleteUrl = async (
     req: express.Request,
     res: express.Response,
-) => {};
+) => {
+    try {
+        const shortUrl = await UrlModel.findByIdAndDelete({_id: req.params.id});
+        if(shortUrl) {
+            res.status(204).send({message: "Requested Url successfully deleted"});
+        }
+    } catch (error) {
+        res.status(500).send({message: "Something went wrong"});
+    }
+};
